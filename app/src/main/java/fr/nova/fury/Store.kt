@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.json.JSONArray
 import org.json.JSONObject
+import fr.nova.fury.ai.AiMode
 
 private val Context.dataStore by preferencesDataStore("nova_v5")
 
@@ -30,6 +31,9 @@ class NovaStore(private val context: Context) {
     private fun encode(s: NovaState): String = JSONObject().apply {
         put("dark", s.dark)
         put("bio", s.biometricLock)
+        put("aiMode", s.aiMode.name)
+        put("aiEndpoint", s.aiEndpoint)
+        put("aiModel", s.aiModel)
         put("brain", JSONArray(s.brain))
 
         put("missions", JSONArray().apply {
@@ -138,7 +142,10 @@ class NovaStore(private val context: Context) {
             cash = cash,
             brain = if (brain.isEmpty()) NovaState().brain else brain,
             dark = o.optBoolean("dark", true),
-            biometricLock = o.optBoolean("bio", false)
+            biometricLock = o.optBoolean("bio", false),
+            aiMode = runCatching { AiMode.valueOf(o.optString("aiMode", AiMode.AUTO.name)) }.getOrDefault(AiMode.AUTO),
+            aiEndpoint = o.optString("aiEndpoint", ""),
+            aiModel = o.optString("aiModel", "")
         )
     }
 }

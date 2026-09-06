@@ -1,6 +1,7 @@
 package fr.nova.fury
 
 import java.util.UUID
+import fr.nova.fury.ai.AiMode
 
 enum class Area { CAPITAL, WATCH, NOVA, PERSONAL }
 
@@ -39,6 +40,13 @@ data class WatchConcept(
     val estimatedCost: Double,
     val originality: Int,
     val brandFit: Int,
+    val feasibility: Int,
+    val caseShape: String = "Round",
+    val caseSize: Int = 40,
+    val dialStyle: String = "Minimal",
+    val handStyle: String = "Dauphine",
+    val strapStyle: String = "Leather",
+    val accentStyle: String = "Steel"
     val feasibility: Int
 )
 
@@ -59,7 +67,13 @@ data class NovaState(
     val deals: List<Deal> = emptyList(),
     val watches: List<WatchConcept> = emptyList(),
     val cash: List<CashFlow> = emptyList(),
-    val brain: List<String> = listOf("NOVA V5 initialisé. Je suis prêt à organiser ton système."),
+    val brain: List<String> = listOf("NOVA V8 initialisé. Personal Command Center prêt."),
     val dark: Boolean = true,
     val biometricLock: Boolean = false
+    val brain: List<String> = listOf("NOVA V5 initialisé. Je suis prêt à organiser ton système."),
+    val dark: Boolean = true,
+    val biometricLock: Boolean = false,
+    val aiMode: AiMode = AiMode.AUTO,
+    val aiEndpoint: String = "",
+    val aiModel: String = ""
 )

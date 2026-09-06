@@ -54,18 +54,10 @@ class RemoteLlmClient {
         require(settings.apiKey.isNotBlank()) { "Ajoute une clé API avant d'activer l'IA distante." }
 
         val system = """Tu es Alphonse, copilote de NOVA sur Android. Réponds en français, de façon concise et actionnable. Tu reçois un cockpit local; ne prétends pas avoir accès à Internet ou à des données absentes. Contexte NOVA: ${contextSummary(state)}"""
-        val messages = JSONArray().put(JSONObject().put("role", "system").put("content", system))
-        // Historique récent : donne à Alphonse la continuité de la conversation, pas juste la dernière question.
-        state.alphonseHistory.takeLast(12).forEach { turn ->
-            messages.put(JSONObject().apply {
-                put("role", if (turn.role == AlphonseRole.USER) "user" else "assistant")
-                put("content", turn.text)
-            })
-        }
-        messages.put(JSONObject().put("role", "user").put("content", prompt))
         val payload = JSONObject().apply {
             put("model", settings.model)
-            put("messages", messages)
+            put("messages", JSONArray().put(JSONObject().put("role", "system").put("content", system))
+                .put(JSONObject().put("role", "user").put("content", prompt)))
             put("temperature", 0.4)
         }
         val connection = (URL(settings.endpoint).openConnection() as HttpURLConnection).apply {
@@ -88,7 +80,7 @@ class RemoteLlmClient {
     }
 
     private fun contextSummary(s: NovaState): String =
-        "missions=${s.missions.count { !it.done }}/${s.missions.size}; deals=${s.deals.size}; watches=${s.watches.size}"
+        "missions=${s.missions.count { !it.done }}/${s.missions.size}; deals=${s.deals.size}; watches=${s.watches.size}; notes=${s.brain.takeLast(8).joinToString(" | ").take(1600)}"
 }
 
 class HybridAiRouter(private val context: Context) {
