@@ -45,5 +45,9 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
+    // Nova UI dependencies
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
