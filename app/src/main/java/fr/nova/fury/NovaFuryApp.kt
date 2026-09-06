@@ -257,6 +257,7 @@ private fun Business(state: NovaState, update: ((NovaState) -> NovaState) -> Uni
 private fun WatchLab(state: NovaState, update: ((NovaState) -> NovaState) -> Unit) {
     var selectedId by remember { mutableStateOf(state.watches.firstOrNull()?.id) }
     val current = state.watches.firstOrNull { it.id == selectedId }
+    var dialog by remember { mutableStateOf(false) }
     var draft by remember(selectedId, state.watches) { mutableStateOf(current ?: WatchConcept(
         name = "NOVA CONCEPT", movement = "Automatique", caseDesign = "Visual V8", dial = "Minimal",
         targetPrice = 0.0, estimatedCost = 0.0, originality = 70, brandFit = 70, feasibility = 70
