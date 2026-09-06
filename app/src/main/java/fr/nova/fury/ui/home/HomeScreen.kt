@@ -2,20 +2,25 @@ package fr.nova.fury.ui.home
 
 import android.app.Activity
 import android.content.Intent
-import android.speech.RecognizerIntent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Watch
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fr.nova.fury.*
+import fr.nova.fury.NovaEngine
+import fr.nova.fury.NovaState
+import fr.nova.fury.Screen
+import fr.nova.fury.launchVoice
 import fr.nova.fury.ui.components.AlphonseMicButton
 import fr.nova.fury.ui.components.NovaCard
 import fr.nova.fury.ui.components.NovaModuleCard
@@ -54,7 +59,7 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
                     Text("$health / 100", style = MaterialTheme.typography.displayMedium)
                     Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
+                    androidx.compose.material3.LinearProgressIndicator(
                         progress = health / 100f,
                         modifier = Modifier.fillMaxWidth(),
                         trackColor = NovaColors.NightBlue,
@@ -73,19 +78,23 @@ fun HomeScreen(
         item {
             // Alphonse Decide card with mic button to the right
             NovaCard(Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Column(Modifier.weight(1f)) {
                         Text("ALPHONSE DÉCIDE", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                         Spacer(Modifier.height(6.dp))
                         Text(NovaEngine.nextAction(state), style = MaterialTheme.typography.bodyLarge)
                         Spacer(Modifier.height(6.dp))
-                        Text("Score ${NovaEngine.nextActionScore(state)}/100", style = MaterialTheme.typography.bodySmall)
+                        // Use the health as a score placeholder
+                        Text("Score ${health}/100", style = MaterialTheme.typography.bodySmall)
                     }
                     Spacer(Modifier.width(12.dp))
                     AlphonseMicButton(isListening = isListening, onClick = {
                         isListening = true
                         launchVoice(activity, voiceLauncher)
-                        // isListening will be set to false in the launcher callback in the parent
                     })
                 }
             }
@@ -112,7 +121,11 @@ fun HomeScreen(
         item {
             // Stats row (compact)
             NovaCard(Modifier.fillMaxWidth()) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     NovaStat("✓ 12", "Tâches terminées")
                     NovaStat("📅 3", "À venir aujourd'hui")
                     NovaStat("📊 7", "Projets en cours")
@@ -127,9 +140,8 @@ fun HomeScreen(
                 Column {
                     Text("« Un objectif sans plan n'est qu'un souhait. »", style = MaterialTheme.typography.bodyLarge)
                     Spacer(Modifier.height(6.dp))
-                    // Image card placeholder (to be replaced by asset)
                     Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 4.dp) {
-                        Box(Modifier.height(120.dp).fillMaxWidth()) { /* image */ }
+                        Box(Modifier.height(120.dp).fillMaxWidth()) { /* image placeholder */ }
                     }
                 }
             }
