@@ -1,44 +1,35 @@
-# Roadmap NOVA V8
+# NOVA ROADMAP
 
-## V8.0 — Personal Command Center
+## V5.1 — GITHUB MOBILE EDITION ✅
+- [x] Build APK automatique
+- [x] Artifact téléchargeable
+- [x] Release manuelle depuis GitHub
+- [x] Branches main/dev/fury
+- [x] Formulaires simples pour idées et bugs
 
-- Nettoyage complet de l’identité du projet
-- Version Android 8.0.0
-- Architecture V8 stabilisée
-- Build APK GitHub Actions
+## V5.2 — MOBILE PRODUCTIVITY
+- [ ] Sauvegarde/export JSON
+- [ ] Import JSON
+- [ ] Suppression/édition des données
+- [ ] Notifications locales
+- [ ] Sauvegarde automatique
 
-## V8.1 — Conversations
+## V6 — NOVA VISION
+- [ ] Caméra
+- [ ] Analyse d'image
+- [ ] OCR
+- [ ] Analyse opportunité à partir d'une photo
 
-- Conversations persistantes
-- Messages structurés
-- Historique local
+## V7 — WATCH LAB VISUAL
+- [ ] Configurateur visuel
+- [ ] Boîtiers
+- [ ] Cadrans
+- [ ] Aiguilles
+- [ ] Bracelets
+- [ ] Scoring design
 
-## V8.2 — Memory
-
-- Mémoire de session
-- Mémoire de conversation
-- Mémoire persistante contrôlée
-
-## V8.3 — Projects
-
-- Espaces projets
-- Documents et fichiers
-- Contexte par projet
-
-## V8.4 — Tasks
-
-- Missions
-- Priorités
-- Suivi d’avancement
-
-## V8.5 — Intelligence
-
-- Providers modulaires
-- Routage IA
-- Gestion du contexte
-
-## V8.6 — Experience
-
-- Notifications
-- Voice
-- Interface finale V8
+## V8 — ALPHONSE
+- [ ] Conversations
+- [ ] Commandes naturelles
+- [ ] Mémoire contrôlée
+- [ ] IA configurable

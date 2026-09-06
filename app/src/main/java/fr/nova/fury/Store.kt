@@ -7,19 +7,15 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.json.JSONArray
 import org.json.JSONObject
+import fr.nova.fury.ai.AiMode
 
-private val Context.dataStore by preferencesDataStore("nova_v8")
+private val Context.dataStore by preferencesDataStore("nova_v5")
 
 class NovaStore(private val context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private object K {
         val state = stringPreferencesKey("state")
-        val llmMode = stringPreferencesKey("llm_mode")
-        val llmEndpoint = stringPreferencesKey("llm_endpoint")
-        val llmModel = stringPreferencesKey("llm_model")
-        val llmApiKey = stringPreferencesKey("llm_api_key")
-        val llmAllowRemote = booleanPreferencesKey("llm_allow_remote")
     }
 
     val flow: Flow<NovaState> = context.dataStore.data.map {
@@ -32,31 +28,12 @@ class NovaStore(private val context: Context) {
         }
     }
 
-    suspend fun loadLlmSettings(): LlmSettings = context.dataStore.data.first().let { p ->
-        LlmSettings(
-            mode = p[K.llmMode]?.let { runCatching { AiMode.valueOf(it) }.getOrNull() } ?: AiMode.HYBRID,
-            endpoint = p[K.llmEndpoint].orEmpty(),
-            model = p[K.llmModel].orEmpty(),
-            apiKey = p[K.llmApiKey].orEmpty(),
-            allowRemote = p[K.llmAllowRemote] ?: false
-        )
-    }
-
-    fun saveLlmSettings(settings: LlmSettings) {
-        scope.launch {
-            context.dataStore.edit { p ->
-                p[K.llmMode] = settings.mode.name
-                p[K.llmEndpoint] = settings.endpoint.trim()
-                p[K.llmModel] = settings.model.trim()
-                p[K.llmApiKey] = settings.apiKey
-                p[K.llmAllowRemote] = settings.allowRemote
-            }
-        }
-    }
-
     private fun encode(s: NovaState): String = JSONObject().apply {
         put("dark", s.dark)
         put("bio", s.biometricLock)
+        put("aiMode", s.aiMode.name)
+        put("aiEndpoint", s.aiEndpoint)
+        put("aiModel", s.aiModel)
         put("brain", JSONArray(s.brain))
 
         put("missions", JSONArray().apply {
@@ -85,9 +62,6 @@ class NovaStore(private val context: Context) {
                     put("case",w.caseDesign); put("dial",w.dial); put("price",w.targetPrice)
                     put("cost",w.estimatedCost); put("originality",w.originality)
                     put("fit",w.brandFit); put("feasibility",w.feasibility)
-                    put("caseShape",w.caseShape); put("caseSize",w.caseSize)
-                    put("dialStyle",w.dialStyle); put("handStyle",w.handStyle)
-                    put("strapStyle",w.strapStyle); put("accentStyle",w.accentStyle)
                 })
             }
         })
@@ -143,13 +117,7 @@ class NovaStore(private val context: Context) {
                     movement=x.getString("movement"), caseDesign=x.getString("case"),
                     dial=x.getString("dial"), targetPrice=x.getDouble("price"),
                     estimatedCost=x.getDouble("cost"), originality=x.getInt("originality"),
-                    brandFit=x.getInt("fit"), feasibility=x.getInt("feasibility"),
-                    caseShape=x.optString("caseShape", "Round"),
-                    caseSize=x.optInt("caseSize", 40),
-                    dialStyle=x.optString("dialStyle", "Minimal"),
-                    handStyle=x.optString("handStyle", "Dauphine"),
-                    strapStyle=x.optString("strapStyle", "Leather"),
-                    accentStyle=x.optString("accentStyle", "Steel")
+                    brandFit=x.getInt("fit"), feasibility=x.getInt("feasibility")
                 )
             }
         }
@@ -174,7 +142,10 @@ class NovaStore(private val context: Context) {
             cash = cash,
             brain = if (brain.isEmpty()) NovaState().brain else brain,
             dark = o.optBoolean("dark", true),
-            biometricLock = o.optBoolean("bio", false)
+            biometricLock = o.optBoolean("bio", false),
+            aiMode = runCatching { AiMode.valueOf(o.optString("aiMode", AiMode.AUTO.name)) }.getOrDefault(AiMode.AUTO),
+            aiEndpoint = o.optString("aiEndpoint", ""),
+            aiModel = o.optString("aiModel", "")
         )
     }
 }

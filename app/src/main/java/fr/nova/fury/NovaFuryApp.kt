@@ -321,6 +321,11 @@ private fun WatchLab(state: NovaState, update: ((NovaState) -> NovaState) -> Uni
             }
         }
     }
+
+    if (dialog) WatchDialog(
+        close = { dialog = false },
+        add = { w -> update { it.copy(watches = it.watches + w) }; dialog = false }
+    )
 }
 
 @Composable
@@ -433,37 +438,16 @@ private fun Focus() {
 
 @Composable
 private fun Settings(state: NovaState, update: ((NovaState) -> NovaState) -> Unit) {
-    val context = LocalContext.current
-    val store = remember { NovaStore(context) }
-    var llm by remember { mutableStateOf(LlmSettings()) }
-    LaunchedEffect(Unit) { llm = store.loadLlmSettings() }
-    LazyColumn(Modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        item { Text("PIXEL SETTINGS", fontSize = 25.sp, fontWeight = FontWeight.Black) }
-        item {
-            ElevatedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Mode sombre", Modifier.weight(1f)); Switch(state.dark, { v -> update { it.copy(dark = v) } })
-                    }
+    Column(Modifier.fillMaxSize().padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text("PIXEL SETTINGS", fontSize = 25.sp, fontWeight = FontWeight.Black)
+        ElevatedCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Mode sombre", Modifier.weight(1f))
+                    Switch(state.dark, { v -> update { it.copy(dark = v) } })
                 }
-            }
-        }
-        item {
-            ElevatedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("IA HYBRIDE", fontWeight = FontWeight.Black)
-                    Text("Local = instant et hors ligne. Distant = raisonnement ouvert. HYBRIDE choisit selon la demande et retombe sur le local en cas d'échec.", style = MaterialTheme.typography.bodySmall)
-                    ChoiceRow("Mode", AiMode.entries.map { it.name }, llm.mode.name) { llm = llm.copy(mode = AiMode.valueOf(it)) }
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Autoriser les requêtes distantes", Modifier.weight(1f))
-                        Switch(llm.allowRemote, { llm = llm.copy(allowRemote = it) })
-                    }
-                    OutlinedTextField(llm.endpoint, { llm = llm.copy(endpoint = it) }, Modifier.fillMaxWidth(), label = { Text("Endpoint HTTPS compatible OpenAI") }, singleLine = true)
-                    OutlinedTextField(llm.model, { llm = llm.copy(model = it) }, Modifier.fillMaxWidth(), label = { Text("Modèle") }, singleLine = true)
-                    OutlinedTextField(llm.apiKey, { llm = llm.copy(apiKey = it) }, Modifier.fillMaxWidth(), label = { Text("Clé API") }, singleLine = true)
-                    Text("NOVA V8 n'envoie aucune donnée à distance tant que l'autorisation est désactivée. Pour une version production, la clé doit idéalement être gérée via Android Keystore ou un backend proxy.", style = MaterialTheme.typography.bodySmall)
-                    Button(onClick = { store.saveLlmSettings(llm) }, Modifier.fillMaxWidth()) { Text("ENREGISTRER L'ARCHITECTURE IA") }
-                }
+                Spacer(Modifier.height(8.dp))
+                Text("V5 est sans clé externe requise.", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -501,7 +485,7 @@ fun NovaFuryApp() {
         store.save(state)
     }
 
-    NovaTheme(darkTheme = state.dark) {
+    NovaTheme {
         val drawerState = rememberDrawerState(if (drawer) DrawerValue.Open else DrawerValue.Closed)
         LaunchedEffect(drawer) {
             if (drawer) drawerState.open() else drawerState.close()
@@ -512,7 +496,7 @@ fun NovaFuryApp() {
             drawerContent = {
                 ModalDrawerSheet {
                     Text("NOVA", Modifier.padding(24.dp), fontSize = 36.sp, fontWeight = FontWeight.Black)
-                    Text("NOVA V8 • PERSONAL COMMAND CENTER", Modifier.padding(horizontal = 24.dp), style = MaterialTheme.typography.labelMedium)
+                    Text("FURY V5 • PIXEL EDITION", Modifier.padding(horizontal = 24.dp), style = MaterialTheme.typography.labelMedium)
                     Spacer(Modifier.height(14.dp))
                     val entries = listOf(
                         Screen.HOME to "Alphonse",
@@ -536,24 +520,6 @@ fun NovaFuryApp() {
             }
         ) {
             Scaffold(
-                floatingActionButton = {
-                    var quickOpen by remember { mutableStateOf(false) }
-                    FloatingActionButton(onClick = { quickOpen = true }) { Icon(Icons.Default.Add, contentDescription = "Action rapide") }
-                    if (quickOpen) {
-                        AlertDialog(
-                            onDismissRequest = { quickOpen = false },
-                            title = { Text("QUE VEUX-TU FAIRE ?") },
-                            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Button(onClick = { screen = Screen.BRAIN; quickOpen = false }, Modifier.fillMaxWidth()) { Text("🧠 CAPTURE RAPIDE") }
-                                Button(onClick = { screen = Screen.MISSIONS; quickOpen = false }, Modifier.fillMaxWidth()) { Text("🎯 AJOUTER UNE MISSION") }
-                                Button(onClick = { screen = Screen.BUSINESS; quickOpen = false }, Modifier.fillMaxWidth()) { Text("💰 ANALYSER UNE OPPORTUNITÉ") }
-                                Button(onClick = { screen = Screen.WATCH; quickOpen = false }, Modifier.fillMaxWidth()) { Text("⌚ CRÉER UN CONCEPT") }
-                                OutlinedButton(onClick = { quickOpen = false }, Modifier.fillMaxWidth()) { Text("FERMER") }
-                            } },
-                            confirmButton = {}
-                        )
-                    }
-                },
                 topBar = {
                     TopAppBar(
                         title = { Text(title(screen), fontWeight = FontWeight.Black) },

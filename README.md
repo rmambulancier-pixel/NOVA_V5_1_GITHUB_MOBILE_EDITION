@@ -1,27 +1,98 @@
-# NOVA V8 — Personal Command Center
+# 😈 NOVA V5.1 — GITHUB MOBILE EDITION
 
-NOVA V8 est la base mobile Android du Personal Command Center de NOVA.
+## Le principe
 
-## Objectif
+**Tu développes NOVA depuis ton Pixel.**
 
-Centraliser les projets, missions, données personnelles et futurs services intelligents dans une architecture mobile évolutive.
+Tu n'as pas besoin d'ordinateur.
 
-## Socle V8
+```text
+PIXEL
+  ↓
+GitHub
+  ↓
+GitHub Actions
+  ↓
+Build Android
+  ↓
+APK
+  ↓
+PIXEL
+```
 
-- Android / Kotlin / Jetpack Compose
-- Architecture modulaire
-- Core NOVA
-- Missions et projets
-- Mémoire et contexte préparés
-- GitHub Actions pour construire l’APK
-- Utilisation mobile via GitSync → GitHub → APK
+## 🚀 Installation du système GitHub
 
-## Version
+### Étape 1 — Créer ton dépôt
 
-- Version : 8.0.0
-- Codename : PERSONAL COMMAND CENTER
-- Cible : Android / Google Pixel
+Sur GitHub :
 
-## Règle de continuité
+1. `+`
+2. New repository
+3. Nom : `NOVA`
+4. Private 🔐
+5. Create repository
 
-La branche principale de développement est `main`. Toute évolution doit préserver la compatibilité de build Android et ne doit pas introduire de ressources invalides dans `app/src/main/res/`.
+### Étape 2 — Ajouter NOVA
+
+Décompresse ce projet puis envoie son contenu dans ton dépôt.
+
+### Étape 3 — Attendre le build
+
+Dès que les fichiers arrivent :
+
+`Actions → NOVA • Build Android APK`
+
+Le build démarre automatiquement.
+
+### Étape 4 — Télécharger
+
+Quand la compilation est verte 🟢 :
+
+`Actions → Build terminé → Artifacts → NOVA-APK-XX`
+
+Télécharge puis installe l'APK sur ton Pixel.
+
+---
+
+# 🤖 MODE NO-CODEUR
+
+Tu peux me parler normalement.
+
+Exemple :
+
+> "Alphonse, je veux un bouton pour supprimer une opportunité."
+
+Tu n'as pas besoin de savoir programmer.
+
+Je prépare la modification.
+
+Tu appliques les fichiers depuis ton téléphone.
+
+GitHub fait le reste.
+
+---
+
+# 🧪 WORKFLOW FURY
+
+Pour une idée expérimentale :
+
+1. Crée une branche `fury`.
+2. Ajoute les modifications.
+3. GitHub compile.
+4. Installe et teste.
+5. Si c'est bon → on fusionne dans `main`.
+
+La version stable reste protégée.
+
+---
+
+# Modules NOVA
+
+- 🤖 Alphonse Command Center
+- 🎤 Commandes vocales
+- 🎯 Priority Radar
+- 💰 Business Hunter
+- ⌚ Watch Lab
+- 🧠 Second Brain
+- 💶 Money OS
+- 🔥 Deep Focus

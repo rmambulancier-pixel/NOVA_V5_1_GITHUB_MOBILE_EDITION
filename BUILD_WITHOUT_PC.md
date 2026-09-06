@@ -1,9 +1,10 @@
-# Construire NOVA V8 sans PC
+# Build sans ordinateur
 
-Le projet peut être mis à jour depuis Android puis construit par GitHub Actions.
+Le build est effectué par GitHub Actions.
 
-1. Modifier ou remplacer les fichiers du projet avec GitSync
-2. Committer les modifications
-3. Pousser vers GitHub
-4. Attendre la fin du workflow APK
-5. Récupérer et installer l’APK généré
+Le projet doit contenir le Gradle Wrapper (`gradlew`, `gradlew.bat`, `gradle/wrapper/...`) pour la compilation cloud.
+
+Si ton dépôt provient d'un projet ouvert une fois dans Android Studio, ces fichiers sont générés automatiquement.
+Pour un flux totalement mobile, tu peux aussi initialiser le dépôt avec GitHub Codespaces puis lancer `./gradlew wrapper` dans le terminal cloud.
+
+Une fois le Wrapper présent, GitHub Actions compile l'APK automatiquement.

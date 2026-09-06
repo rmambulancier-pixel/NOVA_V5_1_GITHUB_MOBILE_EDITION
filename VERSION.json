@@ -1,8 +1,5 @@
 {
-  "name": "NOVA",
-  "version": "8.0.0",
-  "versionCode": 8,
-  "codename": "PERSONAL COMMAND CENTER",
-  "architecture": "MODULAR ANDROID CORE + HYBRID INTELLIGENCE",
-  "target": "Android / Google Pixel"
+  "version": "7.0.0",
+  "codename": "Hybrid Core",
+  "channel": "mobile-first"
 }

@@ -1,31 +1,23 @@
-# Architecture NOVA V8
+# Architecture NOVA V5
 
-## Application
+MainActivity
+    ↓
+NovaFuryApp (Compose)
+    ↓
+NovaState ← NovaStore/DataStore
+    ↓
+NovaEngine
+    ├── Mission scoring
+    ├── Deal scoring
+    ├── Watch concept scoring
+    ├── System health
+    └── Voice command routing
 
-```text
-app/
-└── src/main/
-    ├── java/fr/nova/fury/
-    │   ├── Core et modèles
-    │   ├── Engine et IA hybride
-    │   ├── Stockage
-    │   ├── Voice
-    │   └── UI Compose
-    └── res/
-        ├── drawable/
-        ├── mipmap*/
-        └── values/
-```
+Principe :
+UI → State → Store → DataStore
+       ↓
+    NovaEngine
 
-## Direction V8
-
-La V8 sert de fondation pour :
-
-1. Conversations persistantes
-2. Mémoire structurée
-3. Gestion des projets et fichiers
-4. Moteur de décisions et de tâches
-5. Services intelligents modulaires
-6. Notifications et automatisations futures
-
-Chaque nouveau module doit rester découplé afin de permettre l’évolution vers les versions suivantes sans reconstruire l’application.
+Aucun serveur requis.
+Aucune clé API requise.
+Aucun compte requis.
