@@ -6,116 +6,24 @@ import android.os.Build
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.util.concurrent.Executor
 
 enum class Screen { HOME, MISSIONS, BUSINESS, WATCH, MONEY, BRAIN, FOCUS, SETTINGS }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NovaFuryApp() {
-    val context = LocalContext.current
-    val store = remember { NovaStore(context) }
-    var state by remember { mutableStateOf(NovaState()) }
-    LaunchedEffect(Unit) { store.flow.collect { state = it } }
-
-    var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
-    var drawer by remember { mutableStateOf(false) }
-
-    val colors = if (Build.VERSION.SDK_INT >= 31 && !state.dark)
-        dynamicLightColorScheme(context)
-    else if (Build.VERSION.SDK_INT >= 31)
-        dynamicDarkColorScheme(context)
-    else if (state.dark)
-        darkColorScheme(primary = Color(0xFFB8C4FF))
-    else
-        lightColorScheme(primary = Color(0xFF2643C7))
-
-    fun update(block: (NovaState) -> NovaState) {
-        state = block(state)
-        store.save(state)
-    }
-
-    MaterialTheme(colorScheme = colors) {
-        val drawerState = rememberDrawerState(if (drawer) DrawerValue.Open else DrawerValue.Closed)
-        LaunchedEffect(drawer) {
-            if (drawer) drawerState.open() else drawerState.close()
-        }
-
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Text("NOVA", Modifier.padding(24.dp), fontSize = 36.sp, fontWeight = FontWeight.Black)
-                    Text("FURY V5 • PIXEL EDITION", Modifier.padding(horizontal = 24.dp), style = MaterialTheme.typography.labelMedium)
-                    Spacer(Modifier.height(14.dp))
-                    val entries = listOf(
-                        Screen.HOME to "Alphonse",
-                        Screen.MISSIONS to "Priority Radar",
-                        Screen.BUSINESS to "Business Hunter",
-                        Screen.WATCH to "Watch Lab",
-                        Screen.MONEY to "Money OS",
-                        Screen.BRAIN to "Second Brain",
-                        Screen.FOCUS to "Focus Mode",
-                        Screen.SETTINGS to "Settings"
-                    )
-                    entries.forEach { (target, label) ->
-                        NavigationDrawerItem(
-                            label = { Text(label) },
-                            selected = screen == target,
-                            onClick = { screen = target; drawer = false },
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        )
-                    }
-                }
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(title(screen), fontWeight = FontWeight.Black) },
-                        navigationIcon = {
-                            IconButton(onClick = { drawer = true }) {
-                                Icon(Icons.Default.Menu, null)
-                            }
-                        }
-                    )
-                }
-            ) { padding ->
-                AnimatedContent(
-                    targetState = screen,
-                    modifier = Modifier.padding(padding).fillMaxSize(),
-                    label = "nova_screen"
-                ) { current ->
-                    when (current) {
-                        Screen.HOME -> Home(state, update = ::update, onGo = { screen = it })
-                        Screen.MISSIONS -> Missions(state, update = ::update)
-                        Screen.BUSINESS -> Business(state, update = ::update)
-                        Screen.WATCH -> WatchLab(state, update = ::update)
-                        Screen.MONEY -> Money(state, update = ::update)
-                        Screen.BRAIN -> Brain(state, update = ::update)
-                        Screen.FOCUS -> Focus()
-                        Screen.SETTINGS -> Settings(state, update = ::update)
-                    }
-                }
-            }
-        }
-    }
-}
 
 private fun title(s: Screen) = when (s) {
     Screen.HOME -> "ALPHONSE"
@@ -126,6 +34,167 @@ private fun title(s: Screen) = when (s) {
     Screen.BRAIN -> "SECOND BRAIN"
     Screen.FOCUS -> "FOCUS MODE"
     Screen.SETTINGS -> "SETTINGS"
+}
+
+@Composable
+private fun Metric(label: String, value: String, modifier: Modifier) {
+    ElevatedCard(modifier) {
+        Column(Modifier.padding(10.dp)) {
+            Text(label, style = MaterialTheme.typography.labelSmall)
+            Text(value, fontWeight = FontWeight.Black)
+        }
+    }
+}
+
+@Composable
+private fun Quick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, mod: Modifier, click: () -> Unit) {
+    ElevatedCard(mod) {
+        Column(Modifier.padding(16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(icon, null, Modifier.size(30.dp))
+            Spacer(Modifier.height(6.dp))
+            Text(label, fontWeight = FontWeight.Bold)
+            TextButton(onClick = click) { Text("OPEN") }
+        }
+    }
+}
+
+@Composable
+private fun MissionDialog(close: () -> Unit, add: (Mission) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var impact by remember { mutableStateOf("4") }
+    var effort by remember { mutableStateOf("3") }
+    var urgency by remember { mutableStateOf("4") }
+
+    AlertDialog(
+        onDismissRequest = close,
+        title = { Text("Nouvelle mission") },
+        text = {
+            Column {
+                OutlinedTextField(title, { title = it }, label = { Text("Mission") })
+                OutlinedTextField(impact, { impact = it }, label = { Text("Impact 1-5") })
+                OutlinedTextField(effort, { effort = it }, label = { Text("Effort 1-5") })
+                OutlinedTextField(urgency, { urgency = it }, label = { Text("Urgence 1-5") })
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                add(Mission(title = title, impact = impact.toIntOrNull() ?: 3, effort = effort.toIntOrNull() ?: 3, urgency = urgency.toIntOrNull() ?: 3))
+            }) { Text("AJOUTER") }
+        },
+        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
+    )
+}
+
+@Composable
+private fun DealDialog(close: () -> Unit, add: (Deal) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var buy by remember { mutableStateOf("") }
+    var sell by remember { mutableStateOf("") }
+    var fees by remember { mutableStateOf("0") }
+    var ship by remember { mutableStateOf("0") }
+    var risk by remember { mutableStateOf("30") }
+    var confidence by remember { mutableStateOf("70") }
+    var demand by remember { mutableStateOf("70") }
+
+    AlertDialog(
+        onDismissRequest = close,
+        title = { Text("Business Hunter") },
+        text = {
+            LazyColumn {
+                item { OutlinedTextField(title, { title = it }, label = { Text("Objet") }) }
+                item { OutlinedTextField(buy, { buy = it }, label = { Text("Prix achat") }) }
+                item { OutlinedTextField(sell, { sell = it }, label = { Text("Prix vente estimé") }) }
+                item { OutlinedTextField(fees, { fees = it }, label = { Text("Frais") }) }
+                item { OutlinedTextField(ship, { ship = it }, label = { Text("Port") }) }
+                item { OutlinedTextField(risk, { risk = it }, label = { Text("Risque 0-100") }) }
+                item { OutlinedTextField(confidence, { confidence = it }, label = { Text("Confiance 0-100") }) }
+                item { OutlinedTextField(demand, { demand = it }, label = { Text("Demande 0-100") }) }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                add(Deal(
+                    title = title, buy = buy.toDoubleOrNull() ?: 0.0, sell = sell.toDoubleOrNull() ?: 0.0,
+                    fees = fees.toDoubleOrNull() ?: 0.0, shipping = ship.toDoubleOrNull() ?: 0.0,
+                    risk = risk.toIntOrNull() ?: 30, confidence = confidence.toIntOrNull() ?: 70, demand = demand.toIntOrNull() ?: 70
+                ))
+            }) { Text("ANALYSER") }
+        },
+        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
+    )
+}
+
+@Composable
+private fun WatchDialog(close: () -> Unit, add: (WatchConcept) -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var movement by remember { mutableStateOf("") }
+    var caseD by remember { mutableStateOf("") }
+    var dial by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("") }
+    var cost by remember { mutableStateOf("") }
+    var originality by remember { mutableStateOf("70") }
+    var fit by remember { mutableStateOf("70") }
+    var feasibility by remember { mutableStateOf("70") }
+
+    AlertDialog(
+        onDismissRequest = close,
+        title = { Text("Nouveau concept") },
+        text = {
+            LazyColumn {
+                item { OutlinedTextField(name, { name = it }, label = { Text("Nom du concept") }) }
+                item { OutlinedTextField(movement, { movement = it }, label = { Text("Mouvement") }) }
+                item { OutlinedTextField(caseD, { caseD = it }, label = { Text("Boîtier") }) }
+                item { OutlinedTextField(dial, { dial = it }, label = { Text("Cadran") }) }
+                item { OutlinedTextField(price, { price = it }, label = { Text("Prix cible") }) }
+                item { OutlinedTextField(cost, { cost = it }, label = { Text("Coût estimé") }) }
+                item { OutlinedTextField(originality, { originality = it }, label = { Text("Originalité") }) }
+                item { OutlinedTextField(fit, { fit = it }, label = { Text("ADN marque") }) }
+                item { OutlinedTextField(feasibility, { feasibility = it }, label = { Text("Faisabilité") }) }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                add(WatchConcept(
+                    name = name, movement = movement, caseDesign = caseD, dial = dial,
+                    targetPrice = price.toDoubleOrNull() ?: 0.0, estimatedCost = cost.toDoubleOrNull() ?: 0.0,
+                    originality = originality.toIntOrNull() ?: 70, brandFit = fit.toIntOrNull() ?: 70,
+                    feasibility = feasibility.toIntOrNull() ?: 70
+                ))
+            }) { Text("CRÉER") }
+        },
+        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
+    )
+}
+
+@Composable
+private fun CashDialog(close: () -> Unit, add: (CashFlow) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Général") }
+    var income by remember { mutableStateOf(true) }
+
+    AlertDialog(
+        onDismissRequest = close,
+        title = { Text("Flux financier") },
+        text = {
+            Column {
+                OutlinedTextField(title, { title = it }, label = { Text("Libellé") })
+                OutlinedTextField(amount, { amount = it }, label = { Text("Montant") })
+                OutlinedTextField(category, { category = it }, label = { Text("Catégorie") })
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Entrée d'argent")
+                    Spacer(Modifier.width(12.dp))
+                    Switch(income, { income = it })
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                add(CashFlow(title = title, amount = amount.toDoubleOrNull() ?: 0.0, income = income, category = category))
+            }) { Text("AJOUTER") }
+        },
+        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
+    )
 }
 
 @Composable
@@ -179,9 +248,7 @@ private fun Home(state: NovaState, update: ((NovaState) -> NovaState) -> Unit, o
                     Text(NovaEngine.nextAction(state), fontSize = 18.sp)
                     Spacer(Modifier.height(12.dp))
                     Button(
-                        onClick = {
-                            launchVoice(activity, voiceLauncher)
-                        },
+                        onClick = { launchVoice(activity, voiceLauncher) },
                         Modifier.fillMaxWidth()
                     ) {
                         Icon(Icons.Default.Mic, null)
@@ -199,7 +266,7 @@ private fun Home(state: NovaState, update: ((NovaState) -> NovaState) -> Unit, o
         item { Text("ACCÈS RAPIDE", fontWeight = FontWeight.Black) }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Quick("Business", Icons.Default.Storefront, Modifier.weight(1f)) { onGo(Screen.BUSINESS) }
+                Quick("Business", Icons.Default.ShoppingBag, Modifier.weight(1f)) { onGo(Screen.BUSINESS) }
                 Quick("Watch Lab", Icons.Default.Watch, Modifier.weight(1f)) { onGo(Screen.WATCH) }
             }
         }
@@ -213,18 +280,6 @@ private fun Home(state: NovaState, update: ((NovaState) -> NovaState) -> Unit, o
         item { Text("DERNIÈRES MÉMOIRES", fontWeight = FontWeight.Black) }
         items(state.brain.takeLast(5).reversed()) { memory ->
             Card(Modifier.fillMaxWidth()) { Text(memory, Modifier.padding(14.dp)) }
-        }
-    }
-}
-
-@Composable
-private fun Quick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, mod: Modifier, click: () -> Unit) {
-    ElevatedCard(mod) {
-        Column(Modifier.padding(16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, null, Modifier.size(30.dp))
-            Spacer(Modifier.height(6.dp))
-            Text(label, fontWeight = FontWeight.Bold)
-            TextButton(onClick = click) { Text("OPEN") }
         }
     }
 }
@@ -420,158 +475,101 @@ private fun Settings(state: NovaState, update: ((NovaState) -> NovaState) -> Uni
                     Switch(state.dark, { v -> update { it.copy(dark = v) } })
                 }
                 Spacer(Modifier.height(8.dp))
-                Text("V5 est volontairement sans clé API : tu peux tester l'app immédiatement sur ton Pixel sans configurer un compte externe.", style = MaterialTheme.typography.bodySmall)
+                Text("V5 est sans clé externe requise.", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Metric(label: String, value: String, modifier: Modifier) {
-    ElevatedCard(modifier) {
-        Column(Modifier.padding(10.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(value, fontWeight = FontWeight.Black)
-        }
+fun NovaFuryApp() {
+    val context = LocalContext.current
+    val store = remember { NovaStore(context) }
+    var state by remember { mutableStateOf(NovaState()) }
+    LaunchedEffect(Unit) { store.flow.collect { state = it } }
+
+    var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
+    var drawer by remember { mutableStateOf(false) }
+
+    val colors = if (Build.VERSION.SDK_INT >= 31 && !state.dark)
+        dynamicLightColorScheme(context)
+    else if (Build.VERSION.SDK_INT >= 31)
+        dynamicDarkColorScheme(context)
+    else if (state.dark)
+        darkColorScheme(primary = Color(0xFFB8C4FF))
+    else
+        lightColorScheme(primary = Color(0xFF2643C7))
+
+    fun updateState(block: (NovaState) -> NovaState) {
+        state = block(state)
+        store.save(state)
     }
-}
 
-@Composable
-private fun MissionDialog(close: () -> Unit, add: (Mission) -> Unit) {
-    var title by remember { mutableStateOf("") }
-    var impact by remember { mutableStateOf("4") }
-    var effort by remember { mutableStateOf("3") }
-    var urgency by remember { mutableStateOf("4") }
+    MaterialTheme(colorScheme = colors) {
+        val drawerState = rememberDrawerState(if (drawer) DrawerValue.Open else DrawerValue.Closed)
+        LaunchedEffect(drawer) {
+            if (drawer) drawerState.open() else drawerState.close()
+        }
 
-    AlertDialog(
-        onDismissRequest = close,
-        title = { Text("Nouvelle mission") },
-        text = {
-            Column {
-                OutlinedTextField(title, { title = it }, label = { Text("Mission") })
-                OutlinedTextField(impact, { impact = it }, label = { Text("Impact 1-5") })
-                OutlinedTextField(effort, { effort = it }, label = { Text("Effort 1-5") })
-                OutlinedTextField(urgency, { urgency = it }, label = { Text("Urgence 1-5") })
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                add(Mission(title = title, impact = impact.toIntOrNull() ?: 3, effort = effort.toIntOrNull() ?: 3, urgency = urgency.toIntOrNull() ?: 3))
-            }) { Text("AJOUTER") }
-        },
-        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
-    )
-}
-
-@Composable
-private fun DealDialog(close: () -> Unit, add: (Deal) -> Unit) {
-    var title by remember { mutableStateOf("") }
-    var buy by remember { mutableStateOf("") }
-    var sell by remember { mutableStateOf("") }
-    var fees by remember { mutableStateOf("0") }
-    var ship by remember { mutableStateOf("0") }
-    var risk by remember { mutableStateOf("30") }
-    var confidence by remember { mutableStateOf("70") }
-    var demand by remember { mutableStateOf("70") }
-
-    AlertDialog(
-        onDismissRequest = close,
-        title = { Text("Business Hunter") },
-        text = {
-            LazyColumn {
-                item { OutlinedTextField(title, { title = it }, label = { Text("Objet") }) }
-                item { OutlinedTextField(buy, { buy = it }, label = { Text("Prix achat") }) }
-                item { OutlinedTextField(sell, { sell = it }, label = { Text("Prix vente estimé") }) }
-                item { OutlinedTextField(fees, { fees = it }, label = { Text("Frais") }) }
-                item { OutlinedTextField(ship, { ship = it }, label = { Text("Port") }) }
-                item { OutlinedTextField(risk, { risk = it }, label = { Text("Risque 0-100") }) }
-                item { OutlinedTextField(confidence, { confidence = it }, label = { Text("Confiance 0-100") }) }
-                item { OutlinedTextField(demand, { demand = it }, label = { Text("Demande 0-100") }) }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                add(Deal(
-                    title = title, buy = buy.toDoubleOrNull() ?: 0.0, sell = sell.toDoubleOrNull() ?: 0.0,
-                    fees = fees.toDoubleOrNull() ?: 0.0, shipping = ship.toDoubleOrNull() ?: 0.0,
-                    risk = risk.toIntOrNull() ?: 30, confidence = confidence.toIntOrNull() ?: 70, demand = demand.toIntOrNull() ?: 70
-                ))
-            }) { Text("ANALYSER") }
-        },
-        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
-    )
-}
-
-@Composable
-private fun WatchDialog(close: () -> Unit, add: (WatchConcept) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var movement by remember { mutableStateOf("") }
-    var caseD by remember { mutableStateOf("") }
-    var dial by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var cost by remember { mutableStateOf("") }
-    var originality by remember { mutableStateOf("70") }
-    var fit by remember { mutableStateOf("70") }
-    var feasibility by remember { mutableStateOf("70") }
-
-    AlertDialog(
-        onDismissRequest = close,
-        title = { Text("Nouveau concept") },
-        text = {
-            LazyColumn {
-                item { OutlinedTextField(name, { name = it }, label = { Text("Nom du concept") }) }
-                item { OutlinedTextField(movement, { movement = it }, label = { Text("Mouvement") }) }
-                item { OutlinedTextField(caseD, { caseD = it }, label = { Text("Boîtier") }) }
-                item { OutlinedTextField(dial, { dial = it }, label = { Text("Cadran") }) }
-                item { OutlinedTextField(price, { price = it }, label = { Text("Prix cible") }) }
-                item { OutlinedTextField(cost, { cost = it }, label = { Text("Coût estimé") }) }
-                item { OutlinedTextField(originality, { originality = it }, label = { Text("Originalité") }) }
-                item { OutlinedTextField(fit, { fit = it }, label = { Text("ADN marque") }) }
-                item { OutlinedTextField(feasibility, { feasibility = it }, label = { Text("Faisabilité") }) }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                add(WatchConcept(
-                    name = name, movement = movement, caseDesign = caseD, dial = dial,
-                    targetPrice = price.toDoubleOrNull() ?: 0.0, estimatedCost = cost.toDoubleOrNull() ?: 0.0,
-                    originality = originality.toIntOrNull() ?: 70, brandFit = fit.toIntOrNull() ?: 70,
-                    feasibility = feasibility.toIntOrNull() ?: 70
-                ))
-            }) { Text("CRÉER") }
-        },
-        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
-    )
-}
-
-@Composable
-private fun CashDialog(close: () -> Unit, add: (CashFlow) -> Unit) {
-    var title by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Général") }
-    var income by remember { mutableStateOf(true) }
-
-    AlertDialog(
-        onDismissRequest = close,
-        title = { Text("Flux financier") },
-        text = {
-            Column {
-                OutlinedTextField(title, { title = it }, label = { Text("Libellé") })
-                OutlinedTextField(amount, { amount = it }, label = { Text("Montant") })
-                OutlinedTextField(category, { category = it }, label = { Text("Catégorie") })
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Entrée d'argent")
-                    Spacer(Modifier.width(12.dp))
-                    Switch(income, { income = it })
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Text("NOVA", Modifier.padding(24.dp), fontSize = 36.sp, fontWeight = FontWeight.Black)
+                    Text("FURY V5 • PIXEL EDITION", Modifier.padding(horizontal = 24.dp), style = MaterialTheme.typography.labelMedium)
+                    Spacer(Modifier.height(14.dp))
+                    val entries = listOf(
+                        Screen.HOME to "Alphonse",
+                        Screen.MISSIONS to "Priority Radar",
+                        Screen.BUSINESS to "Business Hunter",
+                        Screen.WATCH to "Watch Lab",
+                        Screen.MONEY to "Money OS",
+                        Screen.BRAIN to "Second Brain",
+                        Screen.FOCUS to "Focus Mode",
+                        Screen.SETTINGS to "Settings"
+                    )
+                    entries.forEach { (target, label) ->
+                        NavigationDrawerItem(
+                            label = { Text(label) },
+                            selected = screen == target,
+                            onClick = { screen = target; drawer = false },
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                add(CashFlow(title = title, amount = amount.toDoubleOrNull() ?: 0.0, income = income, category = category))
-            }) { Text("AJOUTER") }
-        },
-        dismissButton = { TextButton(onClick = close) { Text("ANNULER") } }
-    )
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(title(screen), fontWeight = FontWeight.Black) },
+                        navigationIcon = {
+                            IconButton(onClick = { drawer = true }) {
+                                Icon(Icons.Default.Menu, null)
+                            }
+                        }
+                    )
+                }
+            ) { padding ->
+                AnimatedContent(
+                    targetState = screen,
+                    modifier = Modifier.padding(padding).fillMaxSize(),
+                    label = "nova_screen"
+                ) { current ->
+                    when (current) {
+                        Screen.HOME -> Home(state, update = { updateState(it) }, onGo = { screen = it })
+                        Screen.MISSIONS -> Missions(state, update = { updateState(it) })
+                        Screen.BUSINESS -> Business(state, update = { updateState(it) })
+                        Screen.WATCH -> WatchLab(state, update = { updateState(it) })
+                        Screen.MONEY -> Money(state, update = { updateState(it) })
+                        Screen.BRAIN -> Brain(state, update = { updateState(it) })
+                        Screen.FOCUS -> Focus()
+                        Screen.SETTINGS -> Settings(state, update = { updateState(it) })
+                    }
+                }
+            }
+        }
+    }
 }
  
