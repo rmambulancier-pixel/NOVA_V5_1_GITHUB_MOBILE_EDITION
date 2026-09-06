@@ -1,0 +1,49 @@
+name: NOVA • Release APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version, ex: v5.1.0"
+        required: true
+        type: string
+      title:
+        description: "Titre de la version"
+        required: true
+        default: "NOVA Mobile Edition"
+      notes:
+        description: "Notes de version"
+        required: false
+        default: "Nouvelle version de NOVA."
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code
+        uses: actions/checkout@v4
+
+      - name: ☕ Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: "gradle"
+
+      - name: ⚙️ Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 🏗️ Build Release
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: 🏷️ Créer la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.title }}
+          body: ${{ inputs.notes }}
+          files: app/build/outputs/apk/debug/app-debug.apk

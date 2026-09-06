@@ -1,0 +1,63 @@
+name: NOVA • ONE CLICK APK
+
+on:
+  push:
+    branches: [ "main", "dev", "fury" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: 🏗️ Build NOVA APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Télécharger NOVA
+        uses: actions/checkout@v4
+
+      - name: ☕ Installer Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: "gradle"
+
+      - name: 🔎 Vérifier le projet
+        run: |
+          test -f settings.gradle.kts || test -f settings.gradle
+          test -d app
+
+      - name: 🏗️ Compiler NOVA
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 🔨 Build avec Gradle Wrapper
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "❌ Gradle Wrapper absent."
+            echo "Le projet NOVA One Click doit contenir gradlew."
+            exit 1
+          fi
+
+      - name: 📦 Vérifier APK
+        run: test -f app/build/outputs/apk/debug/app-debug.apk
+
+      - name: 🚀 Publier APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-ONE-CLICK-APK-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: 📋 Résultat
+        run: |
+          echo "## 🟢 NOVA est prêt" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Télécharge l'artifact **NOVA-ONE-CLICK-APK-${{ github.run_number }}**." >> $GITHUB_STEP_SUMMARY
