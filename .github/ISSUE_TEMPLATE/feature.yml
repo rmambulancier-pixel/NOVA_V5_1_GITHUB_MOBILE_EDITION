@@ -1,0 +1,35 @@
+name: ✨ Nouvelle fonctionnalité NOVA
+description: Décris simplement ce que tu veux ajouter à NOVA
+title: "[NOVA] "
+labels: ["feature"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Tu n'as pas besoin de coder 😈
+        Décris simplement ce que tu veux. Exemple :
+        "Je veux pouvoir scanner une montre avec mon Pixel et l'ajouter dans Watch Lab."
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Qu'est-ce que tu veux ?
+      placeholder: Explique ton idée avec tes mots...
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Comment ça doit fonctionner ?
+      placeholder: Quand j'appuie sur..., NOVA doit...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Importance
+      options:
+        - 🔥 Très important
+        - ⭐ Important
+        - 💡 Idée à tester

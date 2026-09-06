@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#061426"
+        android:pathData="M54,6C31.9,6 14,23.9 14,46s17.9,40 40,40 40,-17.9 40,-40S76.1,6 54,6z"/>
+
+    <!-- Helmet visor (glow) -->
+    <path
+        android:fillColor="#00E6FF"
+        android:fillAlpha="0.18"
+        android:pathData="M30,56c0,-12 18,-22 24,-22s24,10 24,22v4c0,3 -3,6 -6,6H36c-3,0 -6,-3 -6,-6v-4z"/>
+
+    <!-- Face screen (dark) -->
+    <path
+        android:fillColor="#0B1220"
+        android:pathData="M36,50c0,-8 14,-16 18,-16s18,8 18,16v2c0,2 -2,4 -4,4H40c-2,0 -4,-2 -4,-4v-2z"/>
+
+    <!-- Eyes -->
+    <path
+        android:fillColor="#EAF6FF"
+        android:pathData="M44,52a3,3 0 1,0 0.001,0zM64,52a3,3 0 1,0 0.001,0z"/>
+
+    <!-- Mouth smile (glow stroke) -->
+    <path
+        android:strokeColor="#2AC7FF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M44,66c6,6 20,6 26,0"
+        android:fillColor="#00000000"/>
+
+    <!-- Small chest N badge -->
+    <path
+        android:fillColor="#2AC7FF"
+        android:pathData="M48,78h12v6H48z" android:fillAlpha="0.95"/>
+</vector>
