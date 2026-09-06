@@ -7,7 +7,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.UUID
 
 private val Context.dataStore by preferencesDataStore("nova_v5")
 
@@ -16,11 +15,6 @@ class NovaStore(private val context: Context) {
 
     private object K {
         val state = stringPreferencesKey("state")
-        val aiMode = stringPreferencesKey("ai_mode")
-        val aiEndpoint = stringPreferencesKey("ai_endpoint")
-        val aiModel = stringPreferencesKey("ai_model")
-        val aiKey = stringPreferencesKey("ai_key")
-        val aiAllowRemote = booleanPreferencesKey("ai_allow_remote")
     }
 
     val flow: Flow<NovaState> = context.dataStore.data.map {
@@ -33,36 +27,9 @@ class NovaStore(private val context: Context) {
         }
     }
 
-    /** Réglages du LLM distant : stockés séparément de NovaState, jamais commités, uniquement sur l'appareil. */
-    suspend fun loadLlmSettings(): LlmSettings {
-        val prefs = context.dataStore.data.first()
-        return LlmSettings(
-            mode = runCatching { AiMode.valueOf(prefs[K.aiMode] ?: AiMode.HYBRID.name) }.getOrDefault(AiMode.HYBRID),
-            endpoint = prefs[K.aiEndpoint] ?: "",
-            model = prefs[K.aiModel] ?: "",
-            apiKey = prefs[K.aiKey] ?: "",
-            allowRemote = prefs[K.aiAllowRemote] ?: false
-        )
-    }
-
-    fun saveLlmSettings(settings: LlmSettings) {
-        scope.launch {
-            context.dataStore.edit {
-                it[K.aiMode] = settings.mode.name
-                it[K.aiEndpoint] = settings.endpoint
-                it[K.aiModel] = settings.model
-                it[K.aiKey] = settings.apiKey
-                it[K.aiAllowRemote] = settings.allowRemote
-            }
-        }
-    }
-
     private fun encode(s: NovaState): String = JSONObject().apply {
         put("dark", s.dark)
         put("bio", s.biometricLock)
-        put("aiMode", s.aiMode.name)
-        put("aiEndpoint", s.aiEndpoint)
-        put("aiModel", s.aiModel)
         put("brain", JSONArray(s.brain))
 
         put("missions", JSONArray().apply {
@@ -100,15 +67,6 @@ class NovaStore(private val context: Context) {
                 put(JSONObject().apply {
                     put("id",c.id); put("title",c.title); put("amount",c.amount)
                     put("income",c.income); put("category",c.category)
-                })
-            }
-        })
-
-        put("alphonseHistory", JSONArray().apply {
-            s.alphonseHistory.forEach { t ->
-                put(JSONObject().apply {
-                    put("id", t.id); put("role", t.role.name); put("text", t.text)
-                    put("source", t.source); put("timestamp", t.timestamp)
                 })
             }
         })
@@ -173,19 +131,6 @@ class NovaStore(private val context: Context) {
 
         val brain = arr("brain").let { a -> List(a.length()) { a.getString(it) } }
 
-        val alphonseHistory = arr("alphonseHistory").let { a ->
-            List(a.length()) { i ->
-                val x = a.getJSONObject(i)
-                AlphonseTurn(
-                    id = x.optString("id", UUID.randomUUID().toString()),
-                    role = runCatching { AlphonseRole.valueOf(x.getString("role")) }.getOrDefault(AlphonseRole.USER),
-                    text = x.getString("text"),
-                    source = x.optString("source", ""),
-                    timestamp = x.optLong("timestamp", System.currentTimeMillis())
-                )
-            }
-        }.takeLast(60)
-
         return NovaState(
             missions = if (missions.isEmpty()) NovaState().missions else missions,
             deals = deals,
@@ -193,11 +138,7 @@ class NovaStore(private val context: Context) {
             cash = cash,
             brain = if (brain.isEmpty()) NovaState().brain else brain,
             dark = o.optBoolean("dark", true),
-            biometricLock = o.optBoolean("bio", false),
-            aiMode = runCatching { AiMode.valueOf(o.optString("aiMode", AiMode.HYBRID.name)) }.getOrDefault(AiMode.HYBRID),
-            aiEndpoint = o.optString("aiEndpoint", ""),
-            aiModel = o.optString("aiModel", ""),
-            alphonseHistory = alphonseHistory
+            biometricLock = o.optBoolean("bio", false)
         )
     }
 }

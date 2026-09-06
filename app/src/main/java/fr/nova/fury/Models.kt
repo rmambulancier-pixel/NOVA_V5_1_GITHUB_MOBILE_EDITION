@@ -39,13 +39,7 @@ data class WatchConcept(
     val estimatedCost: Double,
     val originality: Int,
     val brandFit: Int,
-    val feasibility: Int,
-    val caseShape: String = "Round",
-    val caseSize: Int = 40,
-    val dialStyle: String = "Minimal",
-    val handStyle: String = "Dauphine",
-    val strapStyle: String = "Leather",
-    val accentStyle: String = "Steel"
+    val feasibility: Int
 )
 
 data class CashFlow(
@@ -54,16 +48,6 @@ data class CashFlow(
     val amount: Double,
     val income: Boolean,
     val category: String
-)
-
-enum class AlphonseRole { USER, ALPHONSE }
-
-data class AlphonseTurn(
-    val id: String = UUID.randomUUID().toString(),
-    val role: AlphonseRole,
-    val text: String,
-    val source: String = "",
-    val timestamp: Long = System.currentTimeMillis()
 )
 
 data class NovaState(
@@ -75,11 +59,7 @@ data class NovaState(
     val deals: List<Deal> = emptyList(),
     val watches: List<WatchConcept> = emptyList(),
     val cash: List<CashFlow> = emptyList(),
-    val brain: List<String> = listOf("NOVA V8 initialisé. Personal Command Center prêt."),
+    val brain: List<String> = listOf("NOVA V5 initialisé. Je suis prêt à organiser ton système."),
     val dark: Boolean = true,
-    val biometricLock: Boolean = false,
-    val aiMode: AiMode = AiMode.HYBRID,
-    val aiEndpoint: String = "",
-    val aiModel: String = "",
-    val alphonseHistory: List<AlphonseTurn> = emptyList()
+    val biometricLock: Boolean = false
 )

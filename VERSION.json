@@ -1,5 +1,8 @@
 {
-  "version": "7.0.0",
-  "codename": "Hybrid Core",
-  "channel": "mobile-first"
+  "name": "NOVA",
+  "edition": "V5.1.1 One Click Mobile",
+  "version": "5.1.1",
+  "channel": "mobile-first",
+  "build": "GitHub Actions • One Click",
+  "minimumAndroidSdk": 26
 }
