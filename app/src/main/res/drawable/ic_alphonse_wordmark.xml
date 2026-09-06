@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Robot head (left) + simplified wordmark block (right) -->
+    <path
+        android:fillColor="#061426"
+        android:pathData="M36,6c-19.8,0 -36,16.2 -36,36s16.2,36 36,36 36,-16.2 36,-36S55.8,6 36,6z"/>
+
+    <path
+        android:fillColor="#2AC7FF"
+        android:pathData="M20,46c0,-10 14,-16 18,-16 4,0 18,6 18,16v3c0,3 -3,6 -6,6H26c-3,0 -6,-3 -6,-6v-3z"/>
+
+    <path
+        android:fillColor="#EAF6FF"
+        android:pathData="M28,42a4,4 0 1,0 0.001,0zM44,42a4,4 0 1,0 0.001,0z"/>
+
+    <path
+        android:fillColor="#00E6FF"
+        android:pathData="M24,66c5,5 25,5 30,0"
+        android:strokeWidth="2"
+        android:strokeColor="#00E6FF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Wordmark block: simple bars suggesting letters to avoid text rendering -->
+    <path
+        android:fillColor="#2AC7FF"
+        android:pathData="M64,26h28v56H64z" android:fillAlpha="0.06"/>
+    <path
+        android:fillColor="#EAF6FF"
+        android:pathData="M70,40h4v24h-4zM78,40h4v24h-4zM86,40h4v24h-4z"
+        android:fillAlpha="0.9"/>
+</vector>
