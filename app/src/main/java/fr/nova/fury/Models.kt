@@ -1,9 +1,14 @@
 package fr.nova.fury
 
-import java.util.UUID
 import fr.nova.fury.ai.AiMode
+import java.util.UUID
 
-enum class Area { CAPITAL, WATCH, NOVA, PERSONAL }
+enum class Area {
+    CAPITAL,
+    WATCH,
+    NOVA,
+    PERSONAL
+}
 
 data class Mission(
     val id: String = UUID.randomUUID().toString(),
@@ -26,8 +31,11 @@ data class Deal(
     val confidence: Int = 70,
     val demand: Int = 70
 ) {
-    val profit: Double get() = sell - buy - fees - shipping
-    val roi: Double get() = if (buy == 0.0) 0.0 else profit / buy * 100
+    val profit: Double
+        get() = sell - buy - fees - shipping
+
+    val roi: Double
+        get() = if (buy == 0.0) 0.0 else profit / buy * 100
 }
 
 data class WatchConcept(
@@ -47,7 +55,6 @@ data class WatchConcept(
     val handStyle: String = "Dauphine",
     val strapStyle: String = "Leather",
     val accentStyle: String = "Steel"
-    val feasibility: Int
 )
 
 data class CashFlow(
@@ -60,17 +67,34 @@ data class CashFlow(
 
 data class NovaState(
     val missions: List<Mission> = listOf(
-        Mission(title = "Trouver une opportunité rentable", area = Area.CAPITAL, impact = 5, effort = 2, urgency = 5),
-        Mission(title = "Définir la signature de la marque", area = Area.WATCH, impact = 5, effort = 4, urgency = 3),
-        Mission(title = "Faire de NOVA un outil quotidien", area = Area.NOVA, impact = 4, effort = 3, urgency = 4)
+        Mission(
+            title = "Trouver une opportunité rentable",
+            area = Area.CAPITAL,
+            impact = 5,
+            effort = 2,
+            urgency = 5
+        ),
+        Mission(
+            title = "Définir la signature de la marque",
+            area = Area.WATCH,
+            impact = 5,
+            effort = 4,
+            urgency = 3
+        ),
+        Mission(
+            title = "Faire de NOVA un outil quotidien",
+            area = Area.NOVA,
+            impact = 4,
+            effort = 3,
+            urgency = 4
+        )
     ),
     val deals: List<Deal> = emptyList(),
     val watches: List<WatchConcept> = emptyList(),
     val cash: List<CashFlow> = emptyList(),
-    val brain: List<String> = listOf("NOVA V8 initialisé. Personal Command Center prêt."),
-    val dark: Boolean = true,
-    val biometricLock: Boolean = false
-    val brain: List<String> = listOf("NOVA V5 initialisé. Je suis prêt à organiser ton système."),
+    val brain: List<String> = listOf(
+        "NOVA V8 initialisé. Personal Command Center prêt."
+    ),
     val dark: Boolean = true,
     val biometricLock: Boolean = false,
     val aiMode: AiMode = AiMode.AUTO,
