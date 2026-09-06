@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Monogram: stylized N inside circle -->
+    <path
+        android:fillColor="#061426"
+        android:pathData="M54,6c-26.5,0 -48,21.5 -48,48 0,26.5 21.5,48 48,48 26.5,0 48,-21.5 48,-48 0,-26.5 -21.5,-48 -48,-48z"/>
+
+    <!-- N letter as two diagonal strokes and one vertical, approximated with paths -->
+    <path
+        android:fillColor="#2AC7FF"
+        android:pathData="M36,78 L44,30 L44,78 L60,30 L60,78 L72,30 L72,78 L84,30"
+        android:strokeColor="#2AC7FF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- subtle inner highlight -->
+    <path
+        android:fillColor="#EAF6FF"
+        android:pathData="M40,38c2,2 18,2 20,0"
+        android:strokeWidth="2"
+        android:strokeColor="#EAF6FF"
+        android:strokeLineCap="round"/>
+</vector>
